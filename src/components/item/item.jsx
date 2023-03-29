@@ -13,5 +13,10 @@ export const Item = ({ numberValue }) => {
     textAlign: "center",
     color: theme.palette.text.secondary,
   }));
-  return <Number onClick={onClickAlert}>+{numberValue.numberData}</Number>;
+  return (
+    <Number onClick={onClickAlert}>
+      {numberValue.countryData === "ru" ? "+7" : "+375"}
+      {numberValue.numberData}
+    </Number>
+  );
 };
