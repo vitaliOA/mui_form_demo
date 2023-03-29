@@ -1,33 +1,58 @@
 import { useState } from "react";
 import { Box, Stack } from "@mui/material";
-import { InputField } from "../input/input";
+import { FormField } from "../form/form";
 import { Item } from "../item/item";
+import { useForm } from "react-hook-form";
+import { nanoid } from "nanoid";
 
 export const List = () => {
   const [numberList, setNumberList] = useState([]);
-  const [numberData, setNumberData] = useState("");
   const [inputError, setInputError] = useState(" ");
   const [redError, setRedError] = useState("");
+  const { getFieldState, handleSubmit, control, resetField, watch } = useForm({
+    defaultValues: {
+      textValue: "",
+      selectValue: "ru",
+    },
+    mode: "onChange",
+  });
+  const numberData = watch("textValue");
+  const countryData = watch("selectValue");
+  const selectDirty = getFieldState("selectValue");
 
-  const updateNumberData = (fieldValue) => {
-    setNumberData(fieldValue);
+  const inputCleaner = () => {
+    if (selectDirty.isDirty === true) {
+      resetField("textValue");
+    } else {
+      resetField("textValue");
+    }
   };
 
-  const addNumber = () => {
+  const onSubmit = () => {
     const regex = /^[0-9]+$/;
-    const id = numberData;
-    const newNumber = { numberData, id };
-    if (numberData !== "" && regex.test(numberData)) {
-      setNumberList((prev) => [...prev, newNumber]);
+    const id = nanoid();
+    const newNumber = { numberData, id, countryData };
+    if (regex.test(numberData)) {
+      if (countryData === "ru") {
+        if (numberData.length <= 9) {
+        } else {
+          setNumberList((prev) => [...prev, newNumber]);
+        }
+      } else {
+        if (numberData.length <= 8) {
+        } else {
+          setNumberList((prev) => [...prev, newNumber]);
+        }
+      }
     } else {
       setInputError("Формат вводимого номера неверен");
       setRedError("error");
     }
-    setNumberData("");
     setTimeout(() => {
       setInputError(" ");
       setRedError("");
-    }, 3000);
+    }, 2000);
+    resetField("textValue");
   };
 
   return (
@@ -48,18 +73,22 @@ export const List = () => {
           pt: "15vh",
         }}
       >
-        <InputField
+        <FormField
+          countryData={countryData}
+          control={control}
           error
+          inputCleaner={inputCleaner}
+          Dirty={getFieldState}
           redError={redError}
-          helperText={inputError}
-          updateNumberData={updateNumberData}
-          addNumber={addNumber}
+          inputError={inputError}
+          handleClick={handleSubmit(onSubmit)}
+          onSubmit={onSubmit}
         />
       </Box>
-      <Box sx={{ width: "60%" }}>
+      <Box sx={{ width: "60%", paddingTop: "1vh" }}>
         <Stack spacing={2}>
-          {numberList.map((numberItem) => (
-            <Item numberValue={numberItem} key={numberItem.id} />
+          {numberList.map((item) => (
+            <Item numberValue={item} key={item.id} />
           ))}
         </Stack>
       </Box>
